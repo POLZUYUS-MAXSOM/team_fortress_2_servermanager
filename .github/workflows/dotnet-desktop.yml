@@ -1,44 +1,49 @@
-name: Build C++ WinForms Application
+name: Build C++ WinForms and Setup
 
 on:
   push:
-    branches: [ "main" ] # Сборка при пуше в ветку main
+    branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 
 jobs:
   build:
-    # Для сборки C++/CLI и MSBuild обязательна Windows
-    runs-on: windows-latest 
+    runs-on: windows-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # Добавляем MSBuild и компилятор C++ (Visual Studio Build Tools)
-    - name: Setup MSBuild
-      uses: actions/setup-msbuild@v2
+    # 1. Добавляем исполняемые файлы Visual Studio (devenv.exe) в PATH
+    - name: Add MSBuild and Devenv to PATH
+      uses: microsoft/setup-msbuild@v2
 
-    # Добавляем NuGet (если проект использует NuGet-пакеты)
-    - name: Setup NuGet
-      uses: actions/setup-nuget@v1
-
-    # Восстановление зависимостей (пропустит шаг, если пакетов нет)
-    - name: Restore NuGet Packages
-      run: nuget restore YourSolutionName.sln # Замените на имя вашего файла решения .sln
-
-    # Сборка проекта. 
-    # Замените Platform на "x64" или "x86" в зависимости от настроек вашего проекта
-     Tar name: Build C++ WinForms App
+    # 2. Включаем сборку .vdproj в реестре Windows (иначе devenv выдаст ошибку)
+    - name: Enable VDPROJ builds in Visual Studio
       run: |
-        msbuild YourSolutionName.sln /p:Configuration=Release /p:Platform="x64"
+        reg add "HKCU\Software\Microsoft\VisualStudio\17.0_Config\ExtensionManager\ExtensionApps" /v "DisableOutProcBuild" /t REG_DWORD /d 0 /f
 
-    # Сохранение готового .exe файла и зависимостей в артефакты
-    - name: Upload Build Artifacts
+    # 3. Восстанавливаем пакеты NuGet для конкретного проекта (если используются)
+    - name: Restore NuGet Packages
+      run: |
+        nuget restore YourProjectName.vcxproj -SolutionDirectory ./
+
+    # 4. Собираем сам C++ WinForms проект (замените YourProjectName.vcxproj)
+    - name: Build C++ WinForms Project
+      run: |
+        msbuild YourProjectName.vcxproj /p:Configuration=Release /p:Platform="x64"
+
+    # 5. Собираем установщик MSI через devenv (замените YourSetupProjectName.vdproj)
+    - name: Build MSI Installer
+      run: |
+        devenv.com YourSetupProjectName.vdproj /Build "Release|x64"
+
+    # 6. Выгружаем готовый установщик и .exe в артефакты GitHub
+    - name: Upload Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: Cpp-WinForms-Application
-        # Путь к собранным файлам. Обычно это папка x64/Release или Release/ в корне
+        name: WinForms-Setup-Package
         path: |
           ./x64/Release/**/*.exe
-          ./x64/Release/**/*.dll
+          ./x64/Release/**/*.msi
+          ./x64/Release/**/*.ash
