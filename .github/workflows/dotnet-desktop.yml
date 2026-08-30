@@ -1,21 +1,44 @@
-name: Build C++/CLI Server Manager
+name: Build C++ WinForms Application
 
 on:
   push:
-    branches: [ "master" ]
+    branches: [ "main" ] # Сборка при пуше в ветку main
   pull_request:
-    branches: [ "master" ]
+    branches: [ "main" ]
 
 jobs:
   build:
-    runs-on: windows-latest
+    # Для сборки C++/CLI и MSBuild обязательна Windows
+    runs-on: windows-latest 
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Add MSBuild to PATH
-      uses: microsoft/setup-msbuild@v2
+    # Добавляем MSBuild и компилятор C++ (Visual Studio Build Tools)
+    - name: Setup MSBuild
+      uses: actions/setup-msbuild@v2
 
-    - name: Build Project in Release
-      run: msbuild TeamFortress2ServerManager/TeamFortress2ServerManager/TeamFortress2ServerManager.vcxproj /p:Configuration=Release /p:Platform=x64
+    # Добавляем NuGet (если проект использует NuGet-пакеты)
+    - name: Setup NuGet
+      uses: actions/setup-nuget@v1
+
+    # Восстановление зависимостей (пропустит шаг, если пакетов нет)
+    - name: Restore NuGet Packages
+      run: nuget restore YourSolutionName.sln # Замените на имя вашего файла решения .sln
+
+    # Сборка проекта. 
+    # Замените Platform на "x64" или "x86" в зависимости от настроек вашего проекта
+     Tar name: Build C++ WinForms App
+      run: |
+        msbuild YourSolutionName.sln /p:Configuration=Release /p:Platform="x64"
+
+    # Сохранение готового .exe файла и зависимостей в артефакты
+    - name: Upload Build Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: Cpp-WinForms-Application
+        # Путь к собранным файлам. Обычно это папка x64/Release или Release/ в корне
+        path: |
+          ./x64/Release/**/*.exe
+          ./x64/Release/**/*.dll
