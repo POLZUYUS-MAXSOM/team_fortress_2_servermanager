@@ -17,8 +17,5 @@ jobs:
     - name: Add MSBuild to PATH
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore NuGet Packages
-      run: nuget restore TeamFortress2ServerManager.sln
-
-    - name: Build Solution in Release
-      run: msbuild TeamFortress2ServerManager.sln /p:Configuration=Release /p:Platform=x64
+    - name: Build Project in Release
+      run: msbuild TeamFortress2ServerManager/TeamFortress2ServerManager/TeamFortress2ServerManager.vcxproj /p:Configuration=Release /p:Platform=x64
