@@ -37,7 +37,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="index.htm" />
     <None Include="..\x64\Release\settings.setting" />
   </ItemGroup>
 </Project>

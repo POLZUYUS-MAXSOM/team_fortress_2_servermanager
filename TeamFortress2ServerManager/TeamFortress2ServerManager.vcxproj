@@ -57,9 +57,6 @@
     <None Include="..\x64\Release\settings.setting">
       <DeploymentContent>true</DeploymentContent>
     </None>
-    <None Include="index.htm">
-      <DeploymentContent>true</DeploymentContent>
-    </None>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>18.0</VCProjectVersion>
