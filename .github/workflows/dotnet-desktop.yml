@@ -1,4 +1,4 @@
-name: Build C++ WinForms and Setup
+name: Build C++ WinForms x64
 
 on:
   push:
@@ -7,43 +7,43 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build:
+  build-x64:
     runs-on: windows-latest
 
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    # 1. Добавляем исполняемые файлы Visual Studio (devenv.exe) в PATH
+    # Добавляем инструменты Visual Studio в PATH
     - name: Add MSBuild and Devenv to PATH
       uses: microsoft/setup-msbuild@v2
 
-    # 2. Включаем сборку .vdproj в реестре Windows (иначе devenv выдаст ошибку)
-    - name: Enable VDPROJ builds in Visual Studio
+    # Включаем сборку проектов .vdproj (Visual Studio Installer) на сервере
+    - name: Enable VDPROJ builds
       run: |
         reg add "HKCU\Software\Microsoft\VisualStudio\17.0_Config\ExtensionManager\ExtensionApps" /v "DisableOutProcBuild" /t REG_DWORD /d 0 /f
 
-    # 3. Восстанавливаем пакеты NuGet для конкретного проекта (если используются)
+    # Восстановление NuGet для проекта (если есть зависимости)
     - name: Restore NuGet Packages
       run: |
         nuget restore YourProjectName.vcxproj -SolutionDirectory ./
 
-    # 4. Собираем сам C++ WinForms проект (замените YourProjectName.vcxproj)
-    - name: Build C++ WinForms Project
+    # 1. Собираем только x64 версию C++ WinForms проекта
+    - name: Build C++ WinForms Project (x64)
       run: |
         msbuild YourProjectName.vcxproj /p:Configuration=Release /p:Platform="x64"
 
-    # 5. Собираем установщик MSI через devenv (замените YourSetupProjectName.vdproj)
-    - name: Build MSI Installer
+    # 2. Собираем x64 инсталлятор через devenv.com
+    # Внимание: если выдаст ошибку, попробуйте заменить "Release|x64" на "Release|AMD64"
+    - name: Build MSI Installer (x64)
       run: |
         devenv.com YourSetupProjectName.vdproj /Build "Release|x64"
 
-    # 6. Выгружаем готовый установщик и .exe в артефакты GitHub
-    - name: Upload Artifacts
+    # Сохраняем только x64 артефакты (exe и msi)
+    - name: Upload x64 Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: WinForms-Setup-Package
+        name: WinForms-x64-Package
         path: |
           ./x64/Release/**/*.exe
           ./x64/Release/**/*.msi
-          ./x64/Release/**/*.ash
