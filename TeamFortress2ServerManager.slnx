@@ -1,0 +1,14 @@
+<Solution>
+  <Configurations>
+    <Platform Name="Win32" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Project Path="TeamFortress2ServerManager/TeamFortress2ServerManager.vcxproj">
+    <Platform Solution="Release|Win32" Project="x64" />
+  </Project>
+  <Project Path="TF2SR/TF2SR.vdproj" Type="Installer">
+    <Build Solution="*|Win32" />
+    <Build Solution="Release|x64" />
+  </Project>
+</Solution>
