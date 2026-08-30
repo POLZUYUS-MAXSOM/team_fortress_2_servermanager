@@ -54,7 +54,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\x64\Release\settings.setting" />
+    <None Include="..\x64\Release\settings.setting">
+      <DeploymentContent>true</DeploymentContent>
+    </None>
     <None Include="index.htm">
       <DeploymentContent>true</DeploymentContent>
     </None>
@@ -167,6 +169,7 @@
       <AdditionalDependencies />
       <EntryPointSymbol>main</EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
+      <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
