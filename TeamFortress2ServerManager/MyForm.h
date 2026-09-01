@@ -32,7 +32,7 @@ namespace TeamFortress2ServerManager {
 	private: System::Windows::Forms::Button^ button7;
 	private: System::Windows::Forms::NotifyIcon^ serverdowninfo;
 	private: System::Windows::Forms::Timer^ timer1;
-	private: System::Windows::Forms::ListView^ listView1;
+
 	private: System::Windows::Forms::Button^ button8;
 
 
@@ -43,6 +43,7 @@ namespace TeamFortress2ServerManager {
 	public:
 	public:
 		String^ ADMINSINI;
+		String^ args;
 		MyForm(void)
 		{
 			Admins = gcnew List<String^>();
@@ -106,7 +107,6 @@ namespace TeamFortress2ServerManager {
 			this->button7 = (gcnew System::Windows::Forms::Button());
 			this->serverdowninfo = (gcnew System::Windows::Forms::NotifyIcon(this->components));
 			this->timer1 = (gcnew System::Windows::Forms::Timer(this->components));
-			this->listView1 = (gcnew System::Windows::Forms::ListView());
 			this->button8 = (gcnew System::Windows::Forms::Button());
 			this->SuspendLayout();
 			// 
@@ -127,12 +127,13 @@ namespace TeamFortress2ServerManager {
 			// 
 			// ADMINSLIST
 			// 
+			this->ADMINSLIST->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->ADMINSLIST->CheckBoxes = true;
 			this->ADMINSLIST->Cursor = System::Windows::Forms::Cursors::Hand;
 			this->ADMINSLIST->HideSelection = false;
 			this->ADMINSLIST->Location = System::Drawing::Point(216, 12);
 			this->ADMINSLIST->Name = L"ADMINSLIST";
-			this->ADMINSLIST->Size = System::Drawing::Size(226, 107);
+			this->ADMINSLIST->Size = System::Drawing::Size(226, 189);
 			this->ADMINSLIST->TabIndex = 1;
 			this->ADMINSLIST->UseCompatibleStateImageBehavior = false;
 			this->ADMINSLIST->View = System::Windows::Forms::View::List;
@@ -231,6 +232,7 @@ namespace TeamFortress2ServerManager {
 			// 
 			// SERVERCFGEDITOR
 			// 
+			this->SERVERCFGEDITOR->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->SERVERCFGEDITOR->Location = System::Drawing::Point(13, 290);
 			this->SERVERCFGEDITOR->MaxLength = 147483647;
 			this->SERVERCFGEDITOR->Multiline = true;
@@ -287,26 +289,13 @@ namespace TeamFortress2ServerManager {
 			this->serverdowninfo->BalloonTipText = L"Server down!";
 			this->serverdowninfo->BalloonTipTitle = L"INFO";
 			this->serverdowninfo->Icon = (cli::safe_cast<System::Drawing::Icon^>(resources->GetObject(L"serverdowninfo.Icon")));
-			this->serverdowninfo->Text = L"notifyIcon1";
+			this->serverdowninfo->Text = L"INFO";
 			this->serverdowninfo->Visible = true;
 			// 
 			// timer1
 			// 
 			this->timer1->Interval = 1000;
 			this->timer1->Tick += gcnew System::EventHandler(this, &MyForm::timer1_Tick);
-			// 
-			// listView1
-			// 
-			this->listView1->CheckBoxes = true;
-			this->listView1->Cursor = System::Windows::Forms::Cursors::Hand;
-			this->listView1->HideSelection = false;
-			this->listView1->Location = System::Drawing::Point(217, 12);
-			this->listView1->Name = L"listView1";
-			this->listView1->Size = System::Drawing::Size(226, 189);
-			this->listView1->TabIndex = 1;
-			this->listView1->UseCompatibleStateImageBehavior = false;
-			this->listView1->View = System::Windows::Forms::View::List;
-			this->listView1->ItemChecked += gcnew System::Windows::Forms::ItemCheckedEventHandler(this, &MyForm::ADMINSLIST_ItemChecked);
 			// 
 			// button8
 			// 
@@ -338,12 +327,12 @@ namespace TeamFortress2ServerManager {
 			this->Controls->Add(this->button2);
 			this->Controls->Add(this->refresh_button);
 			this->Controls->Add(this->Directory);
-			this->Controls->Add(this->listView1);
 			this->Controls->Add(this->ADMINSLIST);
 			this->Controls->Add(this->button1);
-			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::Fixed3D;
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedSingle;
 			this->MaximizeBox = false;
 			this->Name = L"MyForm";
+			this->RightToLeft = System::Windows::Forms::RightToLeft::No;
 			this->ShowIcon = false;
 			this->Text = L"TeamFortress2ServerManager";
 			this->Load += gcnew System::EventHandler(this, &MyForm::MyForm_Load);
@@ -377,6 +366,14 @@ namespace TeamFortress2ServerManager {
 			this->ADMINSLIST->BackColor = System::Drawing::SystemColors::ControlText;
 			this->ADMINSLIST->ForeColor = System::Drawing::SystemColors::Control;
 		}
+		args = lines[2];
+		if (lines[3] == "right to left") {
+			this->RightToLeft = System::Windows::Forms::RightToLeft::Yes;
+		}
+		else
+		{
+			this->RightToLeft = System::Windows::Forms::RightToLeft::No;
+		}
 	}
 	private: System::Void button1_Click(System::Object^ sender, System::EventArgs^ e) {
 		if (String::IsNullOrEmpty(WORKDIRECTORYSTRING)) {
@@ -393,7 +390,6 @@ namespace TeamFortress2ServerManager {
 			MessageBox::Show("srcds.exe not found in " + serverRoot);
 			return;
 		}
-		String^ args = "-console -game tf -secure +sv_use_steam_networking 1 +sv_setsteamaccount 14DA06CD5F20B2A768E2DC5606911913 +map cp_dustbowl +maxplayers 33 +exec server.cfg";
 		try {
 			this->timer1->Enabled = true;
 			System::Diagnostics::Process^ process = gcnew System::Diagnostics::Process();
@@ -534,9 +530,9 @@ private: System::Void button7_Click(System::Object^ sender, System::EventArgs^ e
 private: System::Void timer1_Tick(System::Object^ sender, System::EventArgs^ e) {
 	array<System::Diagnostics::Process^>^ runningServer = System::Diagnostics::Process::GetProcessesByName("srcds");
 
-	if (runningServer->Length > 0) {
-		this->timer1->Enabled = false;
+	if (runningServer->Length == 0) {
 		this->serverdowninfo->ShowBalloonTip(0);
+		this->timer1->Enabled = false;
 	}
 }
 private: System::Void button8_Click(System::Object^ sender, System::EventArgs^ e) {
