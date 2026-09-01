@@ -1,7 +1,9 @@
-ru
-black
-windows
-;; не трогай первые строки до коменнтария через ;; 
-;; 1 язык ru\en
-;; 2 тема black\light
-;; 3 тип вывода увендомлений programm\windows устарело*
+en
+light
+-console -game tf -secure +sv_use_steam_networking 1 +sv_setsteamaccount (тут ваш аккаунт сервера) +map cp_dustbowl +maxplayers 33 +exec server.cfg
+left to right
+;; не трогайте первые строки до коменнтария через ;; 
+;; 1 язык
+;; 2 тема
+;; 3 конфигурация запуска сервера
+;; 4 режим справа налево (не работает)
